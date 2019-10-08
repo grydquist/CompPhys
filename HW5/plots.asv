@@ -4,13 +4,11 @@ fclose(fileid);
 
 x = 0:(length(c)-1);
 semilogy(x,abs(c),'o');
-xlabel('i');
+xlabel('x');
 ylabel('|c_i|');
 
 figure;
 plot(x,c,'o')
-xlabel('i');
-ylabel('c_i');
 
 fileid = fopen('derivs.txt');
 a = fscanf(fileid, '%f');
@@ -26,4 +24,4 @@ hold on
 plot(xx,dera);
 xlabel('x');
 ylabel('df(x)/dx');
-legend('Chebyshev Approximation','Analytical','Location','southeast')
+egend('Chebyshev Approximation','Analytical','Location','northwest')

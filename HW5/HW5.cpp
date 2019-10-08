@@ -167,6 +167,7 @@ int main(){
     yp = pow(0.5,1./3.);
     xp = -0.5;
 
+    Doub err=0;
     for (Int i=1;i<101;i++) {
 
 //====================================Chain rule!!!==========
@@ -176,10 +177,12 @@ int main(){
 
 
         myfile2<<fc<<" "<<f<<endl;
+        err = max(err,abs(fc-f));
 
         xp += stepx;
         yp = func5(xp);
     };
     myfile2.close();
+    cout<<endl<<"Max error between analytical and Chebyshev: "<< err<<endl;
 
 }
