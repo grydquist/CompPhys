@@ -10,7 +10,7 @@ using namespace std;
 
 struct func1{
     Doub E,El,Et;
-    Doub x;
+    Doub x, diff;
 
     func1(Doub xx) : x(xx) {};
 
@@ -20,9 +20,10 @@ struct func1{
         El = Et;
         Et = 0.;
         if(n==1){
-            El = 1;
-            E = 0;
+            E = 1;
+            El = 0;
         }
+        diff = abs(E-El);        
     };
 };
 
@@ -89,8 +90,9 @@ int main(){
     func1 f1(1);
 
     //while (abs(f1.E-f1.El))
-    for (Int n=1;n<20;n++) {
+    for (Int n=30;n>1;n--) {
         f1.next(n);
+        cout<<f1.diff<<"   "<<n<<"   "<<f1.x<<endl;
     };
 
 
@@ -170,7 +172,7 @@ int main(){
     Doub err=0;
     for (Int i=1;i<101;i++) {
 
-//====================================Chain rule!!!==========
+//====================================Chain rule==========
         fc = mychebder.eval(yp,n)/3.*pow(1+xp,-2./3.);
         f  = func6(xp);
         if (abs(xp)<1e-10) {f = fc;}
