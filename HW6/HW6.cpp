@@ -1,8 +1,6 @@
 #include <iostream>
 #include <functional>
 #include "nr3.h"
-#include "ran.h"
-#include "mcintegrate.h"
 
 using namespace std;
 
@@ -17,29 +15,29 @@ Bool inell(Doub x, Doub y){
     }
 };
 
+Doub func(Doub x, Doub y){
+    return exp(-x*sin(y));
+}
+
 int main(){
 //======================P2=====================
-// box will be a square with bounds +- sqrt(5/8), MAYBE???
-// achieved by minimizing ellipse eqn wrt x & y
 Doub xlo,xhi,ylo,yhi;
-xlo = -3;//-sqrt(5./8.);
+xlo = -3;
 ylo =  xlo;
-xhi =  3;//sqrt(5./8.);
+xhi =  3;
 yhi =  xhi;
 
-//MCintegrate myMC(xlo,xhi,vol,inell,1,1);
-
-Doub n = 4e6;
-Int xi = sqrt(n),yi = sqrt(n);
+Doub n = 9e4;
+Int xi = sqrt(n),yi = sqrt(n), eval =0;
 Doub xstep = (xhi-xlo)/xi,tot = 0,xv=xlo,yv=ylo;
 Int xc=0,yc=0;
 Bool in=false;
 
 for (Int i=0;i<n;i++){
-   // cout<<xv<<"    "<<yv<<endl;
     in = inell(xv,yv);
     if(in){
-        tot++;
+        tot += func(xv,yv);
+        eval++;
     }
     xv +=xstep;
     if (xv>xhi+xstep){
@@ -47,10 +45,9 @@ for (Int i=0;i<n;i++){
         yv += xstep;
     }
 };
-cout<<tot<<endl;
 
 tot *=(xhi-xlo)*(yhi-ylo)/n;
-
-cout<<tot<<endl;
+cout<< "Value of absolute error: " << abs(1.449026 - tot)<<endl;
+cout<< "Number of integrand evaluations: " << eval<<endl;
 
 };
