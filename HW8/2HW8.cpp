@@ -101,11 +101,10 @@ VecDoub yst(3);
 Shoot<Load,d,Score> shoot(nvar,x1,x2,load,rhs,score);
 
 
-rhs.q = 5;
+rhs.q = 25;
 for (Int i=0;i<5;i++){
 
-    v[0] = nvals[i]*nvals[i];
-    if (i==0) v[0] = -5;
+    v[0] = nvals[i]*nvals[i]-50;
     load.n = nvals[i];
     score.n = nvals[i];
     
@@ -113,7 +112,8 @@ for (Int i=0;i<5;i++){
     load.ab = 1;
     score.ab = 1;
     if (i!=0){
-        if (i==1) v[0] = -5;
+        if (i==3) v[0] = 84;
+        if (i==4) v[0] = 225;
         newt(v,check,shoot);
         if (check) {
         cout << "shoot failed; bad initial guess" << endl;
@@ -128,13 +128,14 @@ for (Int i=0;i<5;i++){
     score.ab = 0;
     load(x1,v);
     score(x1,v);
+        if (i==3) v[0] = 100;
 
     newt(v,check,shoot);
     if (check) {
     cout << "shoot failed; bad initial guess" << endl;
     } else {
         as[i] = v[0];
-        cout<<"a"<<nvals[i]<<" = "<< bs[i-1]<<endl;
+        cout<<"a"<<nvals[i]<<" = "<< as[i]<<endl;
     };
 };
 
@@ -154,7 +155,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode1(yst,x1,x2i,atol1,rtol1,h1,0.0,out1,rhs);
 myode1.integrate();
-ofstream myfile ("an0q5.txt");
+ofstream myfile ("an0q25.txt");
 for (Int i=0;i<outpts+1;i++){
     myfile <<out1.xsave[i]<<"     "<< out1.ysave[0][i]<<endl;
 }
@@ -178,7 +179,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode2(yst,x1,x2i,atol1,rtol1,h1,0.0,out2,rhs);//change # ode and out
 myode2.integrate();                                                       //change #  
-ofstream myfile2 ("bn1q5.txt");                                            //change name and myfile 
+ofstream myfile2 ("bn1q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile2 <<out2.xsave[i]<<"     "<< out2.ysave[0][i]<<endl;             //change #  and myfile
 }
@@ -201,7 +202,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode3(yst,x1,x2i,atol1,rtol1,h1,0.0,out3,rhs);//change # ode and out
 myode3.integrate();                                                       //change #  
-ofstream myfile3 ("an1q5.txt");                                            //change name and myfile 
+ofstream myfile3 ("an1q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile3 <<out3.xsave[i]<<"     "<< out3.ysave[0][i]<<endl;             //change #  and myfile
 }
@@ -223,7 +224,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode4(yst,x1,x2i,atol1,rtol1,h1,0.0,out4,rhs);//change # ode and out
 myode4.integrate();                                                       //change #  
-ofstream myfile4 ("bn2q5.txt");                                            //change name and myfile 
+ofstream myfile4 ("bn2q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile4 <<out4.xsave[i]<<"     "<< out4.ysave[0][i]<<endl;             //change out  and myfile
 }
@@ -246,7 +247,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode5(yst,x1,x2i,atol1,rtol1,h1,0.0,out5,rhs);//change # ode and out
 myode5.integrate();                                                       //change #  
-ofstream myfile5 ("an2q5.txt");                                            //change name and myfile 
+ofstream myfile5 ("an2q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile5 <<out5.xsave[i]<<"     "<< out5.ysave[0][i]<<endl;             //change out  and myfile
 }
@@ -269,7 +270,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode6(yst,x1,x2i,atol1,rtol1,h1,0.0,out6,rhs);//change # ode and out
 myode6.integrate();                                                       //change #  
-ofstream myfile6 ("bn10q5.txt");                                            //change name and myfile 
+ofstream myfile6 ("bn10q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile6 <<out6.xsave[i]<<"     "<< out6.ysave[0][i]<<endl;             //change out  and myfile
 }
@@ -292,7 +293,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode7(yst,x1,x2i,atol1,rtol1,h1,0.0,out7,rhs);//change # ode and out
 myode7.integrate();                                                       //change #  
-ofstream myfile7 ("an10q5.txt");                                            //change name and myfile 
+ofstream myfile7 ("an10q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile7 <<out7.xsave[i]<<"     "<< out7.ysave[0][i]<<endl;             //change out  and myfile
 }
@@ -315,7 +316,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode8(yst,x1,x2i,atol1,rtol1,h1,0.0,out8,rhs);//change # ode and out
 myode8.integrate();                                                       //change #  
-ofstream myfile8 ("an25q5.txt");                                            //change name and myfile 
+ofstream myfile8 ("an25q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile8 <<out8.xsave[i]<<"     "<< out8.ysave[0][i]<<endl;             //change out  and myfile
 }
@@ -340,7 +341,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode9(yst,x1,x2i,atol1,rtol1,h1,0.0,out9,rhs);//change # ode and out
 myode9.integrate();                                                       //change #  
-ofstream myfile9 ("bn25q5.txt");                                            //change name and myfile 
+ofstream myfile9 ("bn25q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile9 <<out9.xsave[i]<<"     "<< out9.ysave[0][i]<<endl;             //change out  and myfile
 }
