@@ -81,9 +81,11 @@ Int N2 = 1;
 Int nvar = 3;
 Int n = 1;
 Int q=1;
+Int ii=-60;
 Int outpts = 150;
-VecDoub v(N2), nvals(5),qs(2), as(10),bs(8);
-Bool check;
+Int cnta=0,cntb = 0,cnt;
+VecDoub v(N2), nvals(5),qs(2), as(15),bs(14),btm(14),atm(15);
+Bool check, tst;
 
 nvals[0]=0;nvals[1]=1;nvals[2]=2;nvals[3]=10;nvals[4]=15;
 
@@ -91,7 +93,7 @@ Load load(n);
 d rhs(q);
 Score score(n);
 
-Doub x1 = 0.0;
+Doub x1 = 0.0,min;
 Doub x2 = 3.1415926535897932384626433/2;
 Doub atol1 = 1.0e-6,h1 = 0.001 ,x2i = 4*x2,rtol1 = atol1;
 Output out1(outpts);
@@ -102,44 +104,155 @@ Shoot<Load,d,Score> shoot(nvar,x1,x2,load,rhs,score);
 
 
 rhs.q = 25;
-for (Int i=0;i<5;i++){
+load.ab = 1;
+score.ab = 1;
+ii -= (cntb+1)%2;
+load.n = ii;
+score.n = ii;
+v[0] = ii;
+load(x1,v);
+score(x1,v); 
 
-    v[0] = nvals[i]*nvals[i]-50;
-    load.n = nvals[i];
-    score.n = nvals[i];
-    
-    //b
-    load.ab = 1;
-    score.ab = 1;
-    if (i!=0){
-        if (i==3) v[0] = 84;
-        if (i==4) v[0] = 225;
-        newt(v,check,shoot);
-        if (check) {
-        cout << "shoot failed; bad initial guess" << endl;
-        } else {
-            bs[i-1] =v[0];
-            cout<<"b"<<nvals[i]<<" = "<< bs[i-1]<<endl;
-        };
-    }
+// b
+while (cntb<15) {
+    // set guess, keeping odd or even (i.e. we're searching for a certain v)
+    ii += 2;
+    ii -= (cntb+1)%2;
+    v[0] = ii;
 
-    //a
-    load.ab = 0;
-    score.ab = 0;
-    load(x1,v);
-    score(x1,v);
-        if (i==3) v[0] = 100;
-
+    // now we can calculate b(cntb)
     newt(v,check,shoot);
+
+    // Did it work?
     if (check) {
-    cout << "shoot failed; bad initial guess" << endl;
-    } else {
-        as[i] = v[0];
-        cout<<"a"<<nvals[i]<<" = "<< as[i]<<endl;
-    };
+        cout << "shoot failed; bad initial guess" << endl;
+    }
+    // If so, check if we get something different
+    else {
+    // First ones we just need to plug right in
+    // Othrewise, plug right in to see if it is different from any bs val
+
+        // test all elements in b for new element
+        tst = true;
+        for (Int i=0;i<14;i++){
+            if (abs(bs[i] - v[0]) <1e-3 ) {
+                // not a new value
+                tst = false;
+
+            }
+        }
+
+        if (abs(v[0])>240) tst = false; // too big
+
+        if (cntb == 0 || cntb == 1 || tst) {
+            
+            bs[cntb] = v[0];
+            cntb++;
+            load.n = cntb+1;
+            score.n = cntb+1;
+            v[0] = ii;
+            
+            // set BCs to even or odd
+            load(x1,v);
+            score(x1,v); 
+        }
+    }
 };
 
+// now just need to sort them
+btm = bs;
+min = btm[0];
+cnt = 0;
+for (Int i=0;i<15;i++){
+    for (Int j=0;j<15;j++){
+        if (bs[j]<min) {
+            min = bs[j];
+            cnt = j;
+        }
+    }
+    btm[i] = bs[cnt];
+    bs[cnt] = 1000;
+    min = bs[cnt];
+}
+bs = btm;
+bs[14] = btm[14];
+for (Int i=0;i<15;i++){
+    cout<<"b"<<i+1<<" = "<< bs[i]<<endl;
+}
 
+
+//a
+load.ab = 0;
+score.ab = 0;
+ii = -60;
+load.n = ii;
+score.n = ii;
+v[0] = ii;
+load(x1,v);
+score(x1,v);
+
+while (cnta<16) {
+    // set guess, keeping odd or even (i.e. we're searching for a certain v)
+    ii += 2;
+    ii -= cnta%2;
+    v[0] = ii;
+
+    //calc a(cnta)
+    newt(v,check,shoot);
+
+    //worked?
+    if (check) {
+    cout << "shoot failed; bad initial guess" << endl;
+    }
+    // First ones we just need to plug right in
+    // Othrewise, plug right in to see if it is different from last even/odd val
+    else {        
+        // test all elements in b for new element
+        tst = true;
+        for (Int i=0;i<16;i++){
+            if (abs(as[i] - v[0]) <1e-3 ) {
+                // not a new value
+                tst = false;
+
+            }
+        }
+
+        if (v[0]>240) tst = false; // too big
+
+        if (cnta == 0 || cnta == 1 || tst) {
+            as[cnta] = v[0];
+            cnta++;
+            load.n = cnta;
+            score.n = cnta;
+            
+            // set BCs to even or odd
+            load(x1,v);
+            score(x1,v); 
+        }
+    };
+
+};
+
+// now just need to sort them
+atm = as;
+min = atm[0];
+cnt = 0;
+for (Int i=0;i<16;i++){
+    for (Int j=0;j<16;j++){
+        if (as[j]<min) {
+            min = as[j];
+            cnt = j;
+        }
+    }
+    atm[i] = as[cnt];
+    as[cnt] = 1000;
+    min = as[cnt];
+}
+as = atm;
+as[15] = atm[15];
+for (Int i=0;i<16;i++){
+    cout<<"a"<<i<<" = "<< as[i]<<endl;
+}
 
 //===================================
 // I've calculated all the a's and b's, now I'm just very inefficiently integrating
@@ -150,7 +263,7 @@ v[0] = as[0];
 load(x1,v);
 yst[0] = load.y[0];
 yst[1] = load.y[1];
-yst[2] = as[0];
+yst[2] = v[0];
 x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode1(yst,x1,x2i,atol1,rtol1,h1,0.0,out1,rhs);
@@ -260,7 +373,7 @@ score.n = nvals[3];                                                        //cha
 load.n = nvals[3];
 load.ab = 1;
 score.ab = 1;                                                              //change all these 
-v[0] = bs[2];                                                              // change to a or b & #
+v[0] = bs[10];                                                              // change to a or b & #
 Output out6(outpts);                                                       //change #     
 load(x1,v);
 yst[0] = load.y[0];
@@ -283,7 +396,7 @@ score.n = nvals[3];                                                        //cha
 load.n = nvals[3];
 load.ab = 0;
 score.ab = 0;                                                              //change all these 
-v[0] = as[3];                                                              // change to a or b & #
+v[0] = as[10];                                                              // change to a or b & #
 Output out7(outpts);                                                       //change #     
 load(x1,v);
 yst[0] = load.y[0];
@@ -301,12 +414,12 @@ myfile7.close();                                                            //ch
 
 
 //=======================================
-// n == 25, q = 5, a
+// n == 15, q = 5, a
 score.n = nvals[4];                                                        //change all these 
 load.n = nvals[4];
 load.ab = 0;
 score.ab = 0;                                                              //change all these 
-v[0] = as[4];                                                              // change to a or b & #
+v[0] = as[15];                                                              // change to a or b & #
 Output out8(outpts);                                                       //change #     
 load(x1,v);
 yst[0] = load.y[0];
@@ -316,7 +429,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode8(yst,x1,x2i,atol1,rtol1,h1,0.0,out8,rhs);//change # ode and out
 myode8.integrate();                                                       //change #  
-ofstream myfile8 ("an25q25.txt");                                            //change name and myfile 
+ofstream myfile8 ("an15q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile8 <<out8.xsave[i]<<"     "<< out8.ysave[0][i]<<endl;             //change out  and myfile
 }
@@ -326,12 +439,12 @@ myfile8.close();                                                            //ch
 
 
 //=======================================
-// n == 25, q = 5, b
+// n == 15, q = 5, b
 score.n = nvals[4];                                                        //change all these 
 load.n = nvals[4];
 load.ab = 1;
 score.ab = 1;                                                              //change all these 
-v[0] = bs[3];                                                              // change to a or b & #
+v[0] = bs[14];                                                              // change to a or b & #
 Output out9(outpts);                                                       //change #     
 load(x1,v);
 yst[0] = load.y[0];
@@ -341,7 +454,7 @@ x2i = 4*x2;
 x1 = 0;
 Odeint<StepperDopr853<d> > myode9(yst,x1,x2i,atol1,rtol1,h1,0.0,out9,rhs);//change # ode and out
 myode9.integrate();                                                       //change #  
-ofstream myfile9 ("bn25q25.txt");                                            //change name and myfile 
+ofstream myfile9 ("bn15q25.txt");                                            //change name and myfile 
 for (Int i=0;i<outpts+1;i++){
     myfile9 <<out9.xsave[i]<<"     "<< out9.ysave[0][i]<<endl;             //change out  and myfile
 }
