@@ -21,8 +21,35 @@ struct rhs_func {
 
 
 int main(){
-  Doub a=1.
-  Int nx 
+  Doub a=1., V=1.;
+  Int nx=16, ny=nx;
+  std::vector<Doub> an(nx);
+  std::vector<std::vector<Doub> > u(nx,std::vector<Doub>(ny));
+
+  for (Int i=0; i<nx; i++){
+      an[i] = 1.;
+    }
+  sinft(an);
+
+  // sinft(an);
+  // for (Int i=0; i<nx; i++){
+  //     cout << an[i] * 2./nx << endl;
+  //   }
+
+  for (Int i=1; i<nx-1; i++){
+      an[i] = 1./(sinh(M_PI*(i)/nx))*an[i];
+      // cout << an[i] << endl;
+    }
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        u[i][j]=0.;
+        for (Int n=1; n<nx-1; n++){
+          u[i][j]+= 2./nx * an[n]*sinh(M_PI*(n)*(i+1)/nx)*sin(M_PI*(n)*(j+1)/nx);
+          }
+        cout << u[i][j] << endl;
+        }
+      }
+
 
   return 0;
 };
