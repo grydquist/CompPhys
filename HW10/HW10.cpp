@@ -22,36 +22,71 @@ struct rhs_func {
 
 int main(){
   Doub a=1., V=1.;
+  Doub pi = 3.1415926535897932384626433;
   Int nx=16, ny=nx;
   std::vector<Doub> an(nx);
-  std::vector<std::vector<Doub> > u(nx,std::vector<Doub>(ny));
+  std::vector<std::vector<Doub> > u(nx,std::vector<Doub>(ny)),rho(nx,std::vector<Doub>(ny));
+  Doub del = 1/nx;
 
   for (Int i=0; i<nx; i++){
       an[i] = 1.;
     }
-  //an[0] = 0;
-  //an[nx-1] = 0;
-  sinft(an);
 
-   sinft(an);
+  sinft(an);
+  
    for (Int i=0; i<nx; i++){
-       cout << an[i] * 2./nx << endl;
+     an[i] *= 2./nx;
+      // cout << an[i] << endl;
      }
 
   for (Int i=1; i<nx-1; i++){
-      an[i] = 1./(sinh(M_PI*(i)/nx))*an[i];
-      // cout << an[i] << endl;
+      an[i] = 1./(sinh(pi*(i)))*an[i];
+      //cout << an[i] << endl;
     }
     for (Int i=0; i<nx; i++){
       for (Int j=0; j<nx; j++){
         u[i][j]=0.;
         for (Int n=1; n<nx-1; n++){
-          u[i][j]+= 2./nx * an[n]*sinh(M_PI*(n)*(i+1)/nx)*sin(M_PI*(n)*(j+1)/nx);
+          u[i][j]+= 2./nx * an[n]*sinh(pi*(n)*(i+1)/nx)*sin(pi*(n)*(j+1)/nx);
           }
         //cout << u[i][j] << endl;
         }
       }
 
+
+//=================New stuff================
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        rho[i][j]=0.;
+        if(j==nx-1) rho[i][j] = -1;
+        }
+      }
+
+      for (Int i=0; i<ny;i++){
+        sinft(rho[i]);
+      }
+
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        //cout<< rho[i][j]<<endl;
+        u[i][j]=rho[i][j]/(cos(pi*i/nx)+cos(pi*j/ny)-2);
+        }
+      }
+
+      for (Int i=0; i<ny;i++){
+        sinft(u[i]);
+      }
+
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        //u[i][j] *= 2/nx;
+        cout<< u[i][j]<<endl;
+        }
+      }
+
+    
+
+    
 
   return 0;
 };
