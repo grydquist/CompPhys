@@ -15,7 +15,7 @@ y = B*(0:M)/M;                 % find solution for these y-values (row vector)
 
 W = sinh(muv*y);               % array of sinh(mu_k*y) for k=1...N-1, for all y-values
                                % (column vector)*(row vector) gives array
-%U = isintr(diag(C)*W);         % multiply 1st row by C(1), 2nd row by C(2), ...
+U = isintr(diag(C)*W);         % multiply 1st row by C(1), 2nd row by C(2), ...
                                % then take Inverse Sine Transform of each column
 
 %surf(x,y,U');                  % make surface plot of solution
@@ -24,19 +24,9 @@ W = sinh(muv*y);               % array of sinh(mu_k*y) for k=1...N-1, for all y-
 
 rho = zeros(N,N);
 rho(1,:) = -1;
-aa = sintr(rho');
-rhoh = sintr(aa');
 
+rhoh = dstn(rho);
 
-%rhoh = dstn(rho);
-
-m= 1:16;
-n = 1:16;
-[NN,MM] = meshgrid(n,m);
-
-uh = rhoh./2./(cos(pi*MM/N)+cos(pi*NN/N)-2);
-aa = sintr(uh')*N/2;
-u  = sintr(aa')*N/2;
-
-surf(u)
+m= 0:15;
+n = 0:
 

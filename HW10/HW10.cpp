@@ -6,26 +6,18 @@
 
 using namespace std;
 
-//==============Funct(ions)/(tors)===============
-
-// rhs
-struct rhs_func {
-    Int counter;
-    Doub q, a;
-    rhs_func(Doub aa, Doub qq) : a(aa), q(qq), counter(0){};
-    void operator() (const Doub x, VecDoub_I &y, VecDoub_O &dydx) {
-        dydx[0]= y[1];
-        dydx[1]=(2*q*cos(2*x)-a)*y[0];
-    }
-};
-
-
 int main(){
+
+  ofstream myfile;
+  myfile.open("output.txt");
+  myfile.precision(12);
+
   Doub a=1., V=1.;
   Doub pi = 3.1415926535897932384626433;
   Int nx=16, ny=nx;
   std::vector<Doub> an(nx);
-  std::vector<std::vector<Doub> > u(nx,std::vector<Doub>(ny)),rho(nx,std::vector<Doub>(ny));
+  std::vector<std::vector<Doub> > u(nx,std::vector<Doub>(ny)),rho(nx,std::vector<Doub>(ny)),
+  rhot(nx,std::vector<Doub>(ny)),uh(nx,std::vector<Doub>(ny));
   Doub del = 1/nx;
 
   for (Int i=0; i<nx; i++){
@@ -55,36 +47,87 @@ int main(){
 
 
 //=================New stuff================
-    for (Int i=0; i<nx; i++){
-      for (Int j=0; j<nx; j++){
-        rho[i][j]=0.;
-        if(j==nx-1) rho[i][j] = -1;
-        }
-      }
+  std::vector<Doub> aa(nx);
 
-      for (Int i=0; i<ny;i++){
-        sinft(rho[i]);
-      }
 
-    for (Int i=0; i<nx; i++){
-      for (Int j=0; j<nx; j++){
-        //cout<< rho[i][j]<<endl;
-        u[i][j]=rho[i][j]/(cos(pi*i/nx)+cos(pi*j/ny)-2);
-        }
-      }
+// Make rho, where it's just 0 except -1 on the boundaries
+  for (Int i=0; i<nx; i++){
+    for (Int j=0; j<nx; j++){
+      rho[i][j]=0.;
+      if(j == 1) rho[i][j] = -1;
+    }
+  }
 
-      for (Int i=0; i<ny;i++){
-        sinft(u[i]);
-      }
+// sine transform of rows (?)
+  for (Int i=0; i<ny;i++){
+      sinft(rho[i]);
+  }
 
-    for (Int i=0; i<nx; i++){
-      for (Int j=0; j<nx; j++){
-        //u[i][j] *= 2/nx;
-        cout<< u[i][j]<<endl;
-        }
-      }
+// swap indices so we can do sine transform on columns
+  for (Int i=0; i<nx; i++){
+    for (Int j=0; j<nx; j++){
+      rhot[i][j] = rho[j][i];
+    }
+  }
+  rho = rhot;
 
-    
+// Sine transform on columns
+  for (Int i=0; i<ny;i++){
+      sinft(rho[i]);
+  }
+
+// swap rows back to original configuration
+  for (Int i=0; i<nx; i++){
+    for (Int j=0; j<nx; j++){
+      rhot[i][j] = rho[j][i];
+    }
+  }
+  rho = rhot;
+
+// solve for uh
+  for (Int i=0; i<nx; i++){
+    for (Int j=0; j<nx; j++){
+      uh[i][j] = rho[i][j]/2./(cos(pi*i/nx)+cos(pi*j/ny)-2);
+    }
+  }
+
+// sine transform uh rows
+  for (Int i=0; i<ny;i++){
+      sinft(uh[i]);
+  }
+
+// swap rows and make above the inverse sine transform
+  for (Int i=0; i<nx; i++){
+    for (Int j=0; j<nx; j++){
+      u[i][j] = uh[j][i]*2/nx;
+    }
+  }
+  uh = u;
+
+// sine transform uh columns
+  for (Int i=0; i<ny;i++){
+      sinft(uh[i]);
+  }
+
+// Swap rows and columns again. Make above inverse
+  for (Int i=0; i<nx; i++){
+    for (Int j=0; j<nx; j++){
+      u[i][j] = uh[j][i]*2/nx;
+    }
+  }
+
+// output the answer
+  for (Int i=0; i<nx; i++){
+    for (Int j=0; j<nx; j++){
+      if (abs(u[i][j])<1e-15) u[i][j]=0;
+      std::cout << std::setprecision(5)<< u[i][j]<< " ";
+      myfile    << std::setprecision(5)<< u[i][j]<< " ";
+    }
+      cout<<endl;
+      myfile <<endl;
+  }
+   
+  myfile.close(); 
 
     
 
