@@ -4,7 +4,7 @@ rm -f hw10.exe
 
 # Compile the source
 FLAGS="-o"
-g++ $FLAGS hw10.exe hw10.cpp
+g++ $FLAGS hw10.exe HW10.cpp
 
 
 # Run the code
