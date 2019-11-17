@@ -59,11 +59,34 @@ int main(){
     }
   }
 
+  cout<<
+  "-----------------------------------------------------------------------------" <<endl
+  <<"Initial rho Matrix for Dirchlet BC" << endl<<
+  "-----------------------------------------------------------------------------"
+  <<endl;
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        cout<<left<<setw(8)<<rho[i][j];
+      }
+      cout<<endl;
+    }
+
 // sine transform of rows (?)
   for (Int i=0; i<ny;i++){
       sinft(rho[i]);
   }
 
+  cout<<
+  "-----------------------------------------------------------------------------" <<endl
+  <<"Rho Matrix after first sinft" << endl<<
+  "-----------------------------------------------------------------------------"
+  <<endl;
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        cout<<left<<setw(8)<<rho[i][j];
+      }
+      cout<<endl;
+    }
 // swap indices so we can do sine transform on columns
   for (Int i=0; i<nx; i++){
     for (Int j=0; j<nx; j++){
@@ -77,6 +100,17 @@ int main(){
       sinft(rho[i]);
   }
 
+  cout<<
+  "-----------------------------------------------------------------------------" <<endl
+  <<"Rho Matrix after second sinft" << endl<<
+  "-----------------------------------------------------------------------------"
+  <<endl;
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        cout<<left<<setw(8)<<rho[i][j];
+      }
+      cout<<endl;
+    }
 // swap rows back to original configuration
   for (Int i=0; i<nx; i++){
     for (Int j=0; j<nx; j++){
@@ -118,7 +152,7 @@ int main(){
   }
   cout<< endl<<
   "-----------------------------------------------------------------------------" <<endl
-  <<"Sine Transform" << endl<<
+  <<"Final u matrix for Dirchlet BC's" << endl<<
   "-----------------------------------------------------------------------------"
   <<endl;
 // output the answer
@@ -139,6 +173,8 @@ int main(){
   nx=17; ny=nx;
   del = 1./nx;
 
+  cout.precision(2);
+
   std::vector<std::vector<Doub> > uc(nx,std::vector<Doub>(ny)),rhoc(nx,std::vector<Doub>(ny)),
   rhotc(nx,std::vector<Doub>(ny)),uhc(nx,std::vector<Doub>(ny));
 
@@ -152,6 +188,7 @@ cout<<
     for (Int j=0; j<nx; j++){
       rhoc[i][j]=0.;
       if(j == 0) rhoc[i][j] = -2.*del;
+      if(i == 0) rhoc[i][j] = 2.*del;
       cout<<left<<setw(8)<<rhoc[i][j];
     }
     cout<<endl;
@@ -160,6 +197,18 @@ cout<<
   for (Int i=0; i<ny;i++){
       cosft1(rhoc[i]);
   }
+
+  cout<<
+  "-----------------------------------------------------------------------------" <<endl
+  <<"Rho Matrix after first csft1" << endl<<
+  "-----------------------------------------------------------------------------"
+  <<endl;
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        cout<<left<<setw(8)<<rhoc[i][j];
+      }
+      cout<<endl;
+    }
 
 // swap indices so we can do cosine transform on columns
   for (Int i=0; i<nx; i++){
@@ -174,6 +223,17 @@ cout<<
       cosft1(rhoc[i]);
   }
 
+  cout<<
+  "-----------------------------------------------------------------------------" <<endl
+  <<"Rho Matrix after second csft1" << endl<<
+  "-----------------------------------------------------------------------------"
+  <<endl;
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        cout<<left<<setw(8)<<rhoc[i][j];
+      }
+      cout<<endl;
+    }
 // swap rows back to original configuration
   for (Int i=0; i<nx; i++){
     for (Int j=0; j<nx; j++){
@@ -183,13 +243,31 @@ cout<<
   rhoc = rhotc;
 
 // solve for uh
+// Potentially only need to take i=1..n and j=1..n since i,j=0 is outside boundary??? Ahh but I think the i,j=0 is needed for the inverse transform...
+// Definitely can't evalute uhc when i,j=0 -> denominator = 0 :(
   for (Int i=0; i<nx; i++){
     for (Int j=0; j<nx; j++){
-      uhc[i][j] = rhoc[i][j]/2./(cos(pi*i/nx)+cos(pi*j/ny)-2);
+      if (i==0 && j==0){
+        uhc[i][j] = 0.;
+      }
+      else uhc[i][j] = rhoc[i][j]/2./(cos(pi*(i)/nx)+cos(pi*(j)/ny)-2);
     }
   }
+  cout<<
+  "-----------------------------------------------------------------------------" <<endl
+  <<"uhc Matrix" << endl<<
+  "-----------------------------------------------------------------------------"
+  <<endl;
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        cout<<left<<setw(8)<<uhc[i][j];
+      }
+      cout<<endl;
+    }
 
-// sine transform uh rows
+
+
+// Cosine transform uh rows
   for (Int i=0; i<ny;i++){
       cosft1(uhc[i]);
   }
@@ -200,12 +278,24 @@ cout<<
       uc[i][j] = uhc[j][i]*2/nx;
     }
   }
-  uh = u;
+  uhc = uc;
 
-// sine transform uh columns
+// Cosine transform uh columns
   for (Int i=0; i<ny;i++){
       cosft1(uhc[i]);
   }
+
+  cout<<
+  "-----------------------------------------------------------------------------" <<endl
+  <<"uhc Matrix after cosine transforms" << endl<<
+  "-----------------------------------------------------------------------------"
+  <<endl;
+    for (Int i=0; i<nx; i++){
+      for (Int j=0; j<nx; j++){
+        cout<<left<<setw(8)<<uhc[i][j];
+      }
+      cout<<endl;
+    }
 
 // Swap rows and columns again. Make above inverse
   for (Int i=0; i<nx; i++){
@@ -217,7 +307,7 @@ cout<<
 // output the answer
 cout<< endl<<
 "-----------------------------------------------------------------------------" << endl
-<<"Cosine Transform" << endl <<
+<<"Final u matrix for Neumann BC's" << endl <<
 "-----------------------------------------------------------------------------"
 <<endl;
 
