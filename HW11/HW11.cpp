@@ -36,20 +36,34 @@ int main(){
   ua = u;
   ui = u;
 
-// -------------FTCS---------------- 
+// -------------FTCS----------------
+// Time loop
   for (Int i=0;i<Nt;i++){
+//  Update time
     t = t+dt;
+//  Loop over all nodes to explicitly update next time step
     for (Int j=0;j<nx;j++){
+
+//    Deal with points on ends of truncated domain
       if (j==0) {
         ut[j] = u[j] + dt*(2.*u[j+1]-2.*u[j])/dx/dx;
+
       } else if (j==nx-1) {
         ut[j] = u[j] + dt*(u[j-1]-2.*u[j])/dx/dx;
+
+//    Update next timestep for interior points  
       } else {
         ut[j] = u[j] + dt*(u[j-1]-2.*u[j]+u[j+1])/dx/dx;
       }
+
+//    Get analytical solution for current point/time
       ua[j] = fa(x[j],t);
+
+//    Output info
       myfile << std::setprecision(5)<< ut[j]<<", "<<ua[j]<< endl;
     }
+
+//  Update u to next time step
     u = ut;
     
   }
@@ -63,6 +77,7 @@ int main(){
   u = ui;
   ua = ui;
 
+//Build LHS matrix, which is tridiagonal except the first off diagonal term
   for (Int i=0;i<nx;i++){
     for (Int j=0;j<nx;j++){
       A[i][j] = 0;
@@ -75,27 +90,44 @@ int main(){
     if(i>0)    A[i-1][i] = -1./2./dx/dx;
   }
   A[0][1] *=2;
+
+//Do LUdcmp of A
   LUdcmp ALU(A);
 
+//Time loop
   for (Int i=0;i<Nt;i++){
+
+//  Update time
     t = t+dt;
+
+//  Loop through points to get RHS vector
     for (Int j=0;j<nx;j++){
+
+
+//    Deal with points on ends of truncated domain
       if (j==0) {
         b[j] = u[j]/dt+(2.*u[j+1]-2.*u[j])/2./dx/dx;
+
       } else if (j==nx-1) {
         b[j] = u[j]/dt+(u[j-1]-2.*u[j])/2./dx/dx;
+
+//    Get RHS at points in interior
       } else {
         b[j] = u[j]/dt+(u[j-1]-2.*u[j]+u[j+1])/2./dx/dx;
       }
+
+//    Analytical solution
       ua[j] = fa(x[j],t);
     }
+
+//  Solve system
     ALU.solve(b,u);
+
+//  Output
     for (Int j=0;j<nx;j++){
       myfile << std::setprecision(5)<< u[j]<<", "<<ua[j]<<", "<<x[j]<< endl;
     }
   }
-
-
 
   myfile.close();
   return 0;
