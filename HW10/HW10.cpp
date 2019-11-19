@@ -107,6 +107,7 @@ int main(){
   <<endl;
     for (Int i=0; i<nx; i++){
       for (Int j=0; j<nx; j++){
+        if(abs(rho[i][j])<1e-14) rho[i][j] = 0;
         cout<<left<<setw(8)<<rho[i][j];
       }
       cout<<endl;

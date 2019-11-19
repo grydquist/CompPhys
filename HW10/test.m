@@ -1,6 +1,6 @@
 A=1; B=1;                      % lengths of rectangle sides
 fct = @(x) x*0+1;     % given function for top side of rectangle y=B
-N = 16;                        % use spacing A/N for x
+N = 8;                        % use spacing A/N for x
 x = A*(1:N-1)'/N;              % only interior nodes            (column vector)
 g = fct(x);                    % evaluate g for 1/N,...,(N-1)/N (column vector)
 
@@ -15,7 +15,7 @@ y = B*(0:M)/M;                 % find solution for these y-values (row vector)
 
 W = sinh(muv*y);               % array of sinh(mu_k*y) for k=1...N-1, for all y-values
                                % (column vector)*(row vector) gives array
-%U = isintr(diag(C)*W);         % multiply 1st row by C(1), 2nd row by C(2), ...
+U = isintr(diag(C)*W);         % multiply 1st row by C(1), 2nd row by C(2), ...
                                % then take Inverse Sine Transform of each column
 
 %surf(x,y,U');                  % make surface plot of solution
@@ -30,13 +30,13 @@ rhoh = sintr(aa');
 
 %rhoh = dstn(rho);
 
-m= 1:16;
-n = 1:16;
+m= 1:N;
+n = 1:N;
 [NN,MM] = meshgrid(n,m);
 
 uh = rhoh./2./(cos(pi*MM/N)+cos(pi*NN/N)-2);
 aa = sintr(uh')*N/2;
 u  = sintr(aa')*N/2;
 
-surf(u)
+surf(U)
 
