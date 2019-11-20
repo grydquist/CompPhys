@@ -21,8 +21,12 @@ nx=100
 dx = L/(nx-1)
 
 x=[]
+xn=[]
 for i in range(nx):
     x.append(i*dx)
+    xn.append(-i*dx)
+
+xn = np.flip(xn)
 
 u_ftcs = []
 u_an = []
@@ -46,36 +50,45 @@ custom_lines=[Line2D([0], [0], color=c[0], lw=lw, ls=ls[0]),
             Line2D([0], [0], color=c[2], lw=lw, ls=ls[2]),
             Line2D([0], [0], color=c[3], lw=lw, ls=ls[3]),
             Line2D([0], [0], color=c[0], lw=lw, ls="-"),
-            Line2D([0], [0], color=c[0], lw=0, marker='o',markersize=ms, fillstyle='none')]
+            Line2D([0], [0], color=c[0], lw=0, marker='o',markersize=ms, fillstyle='none'),
+            Line2D([0], [0], color=c[0], lw=0, marker='x',markersize=ms*1.5)]
 for i, t in enumerate(time):
-    ax.plot(x[:50], u_an[t][:50], lw=lw, label='t={} s'.format(t*dt), color=c[i], ls=ls[i])
-    ax.plot(x[:50], u_ftcs[t][:50], lw=0, marker='o',markersize=ms, fillstyle='none',
-                    label='t={} s'.format(t*dt), color=c[i], markevery=2)
-ax.set(xlabel='$x$', ylabel='$u$')
-leg=["t=0 s", "t=0.25 s", "t=0.5 s", "t=0.75 s", "Analytic", "FTCS"]
-leg1=ax.legend(custom_lines[:4], leg[:4], ncol=1, frameon=False, loc='lower right')
-ax.legend(custom_lines[-2:], leg[-2:], ncol=1, frameon=False, loc='upper right')
+    ax.plot(x, u_an[t], lw=lw, label='t={} s'.format(t*dt), color=c[i], ls=ls[i])
+    ax.plot(x, u_ftcs[t], lw=0, marker='o',markersize=ms, fillstyle='none',
+                    label='t={} s'.format(t*dt), color=c[i], markevery=3)
+    ax.plot(x, u_cn[t], lw=0, marker='x',markersize=ms*1.5, fillstyle='none',
+                    label='t={} s'.format(t*dt), color=c[i], markevery=3)
+
+    ax.plot(xn, np.flip(u_an[t]), lw=lw, label='t={} s'.format(t*dt), color=c[i], ls=ls[i])
+    ax.plot(xn, np.flip(u_ftcs[t]), lw=0, marker='o',markersize=ms, fillstyle='none',
+                    label='t={} s'.format(t*dt), color=c[i], markevery=3)
+    ax.plot(xn, np.flip(u_cn[t]), lw=0, marker='x',markersize=ms*1.5, fillstyle='none',
+                    label='t={} s'.format(t*dt), color=c[i], markevery=3)
+ax.set(xlabel='$x$', ylabel='$u$', xlim=[-5,5])
+leg=["t=0 s", "t=0.25 s", "t=0.5 s", "t=0.75 s", "Analytic", "FTCS", "CN"]
+leg1=ax.legend(custom_lines[:4], leg[:4], ncol=1, frameon=False, loc='upper left')
+ax.legend(custom_lines[-3:], leg[-3:], ncol=1, frameon=False, loc='upper right')
 plt.gca().add_artist(leg1)
 
 plt.tight_layout()
-plt.savefig('figs/ftcs.eps')
+plt.savefig('figs/all.eps')
 
-
-fig, ax = plt.subplots(figsize=(8,6))
-
-for i, t in enumerate(time):
-    ax.plot(x[:50], u_an[t][:50], lw=lw, label='t={} s'.format(t*dt), color=c[i], ls=ls[i])
-    ax.plot(x[:50], u_cn[t][:50], lw=0, marker='o',markersize=ms, fillstyle='none',
-                    label='t={} s'.format(t*dt), color=c[i], markevery=2)
-ax.set(xlabel='$x$', ylabel='$u$')
-leg=["t=0 s", "t=0.25 s", "t=0.5 s", "t=0.75 s", "Analytic", "Crank-Nicolson"]
-leg1=ax.legend(custom_lines[:4], leg[:4], ncol=1, frameon=False, loc='lower right')
-ax.legend(custom_lines[-2:], leg[-2:], ncol=1, frameon=False, loc='upper right')
-plt.gca().add_artist(leg1)
-
-plt.tight_layout()
-plt.savefig('figs/cn.eps')
-# ax.plot(a[0,25,'x'], a[0,25,'y'], lw=lw, label=r'a$_{{0}}$({1})'.format(0,5))
-
+#
+# fig, ax = plt.subplots(figsize=(8,6))
+#
+# for i, t in enumerate(time):
+#     ax.plot(x, u_an[t], lw=lw, label='t={} s'.format(t*dt), color=c[i], ls=ls[i])
+#     ax.plot(x, u_cn[t], lw=0, marker='o',markersize=ms, fillstyle='none',
+#                     label='t={} s'.format(t*dt), color=c[i], markevery=2)
+# ax.set(xlabel='$x$', ylabel='$u$')
+# leg=["t=0 s", "t=0.25 s", "t=0.5 s", "t=0.75 s", "Analytic", "Crank-Nicolson"]
+# leg1=ax.legend(custom_lines[:4], leg[:4], ncol=1, frameon=False, loc='lower right')
+# ax.legend(custom_lines[-2:], leg[-2:], ncol=1, frameon=False, loc='upper right')
+# plt.gca().add_artist(leg1)
+#
+# plt.tight_layout()
+# plt.savefig('figs/cn.eps')
+# # ax.plot(a[0,25,'x'], a[0,25,'y'], lw=lw, label=r'a$_{{0}}$({1})'.format(0,5))
+#
 
 plt.show()
