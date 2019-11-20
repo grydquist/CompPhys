@@ -19,14 +19,17 @@ int main(){
   ofstream myfile;
   myfile.open("ftcs.txt");
   myfile.precision(12);
+  cout.precision(12);
 // Declarations
-  Doub L=10.,dt = 0.001,t=0;
-  Int nx=100, Nt=1000;
+  Doub L=10.,dt = 0.1,t=0, t_end=1.;
+  Int nx=250, counter=0;
   VecDoub x(nx),u(nx),ua(nx),ut(nx),ui(nx);
   Doub dx = L/(nx-1);
+  Doub res_ftcs=0., res_cn=0.;
+
   x[0] = 0;
 
-// Setting x, analytic, numerical, temporary holder solutions 
+// Setting x, analytic, numerical, temporary holder solutions
   for (Int i=0;i<nx;i++){
     if (i!=0){
     x[i] = x[i-1]+dx;
@@ -38,11 +41,12 @@ int main(){
 
 // -------------FTCS----------------
 // Time loop
-  for (Int i=0;i<Nt;i++){
+  while (t<t_end){
 //  Update time
     t = t+dt;
+    counter++;
 //  Loop over all nodes to explicitly update next time step
-    for (Int j=0;j<nx;j++){
+    for (Int j=0;j<nx-1;j++){
 
 //    Deal with points on ends of truncated domain
       if (j==0) {
@@ -51,7 +55,7 @@ int main(){
       } else if (j==nx-1) {
         ut[j] = u[j] + dt*(u[j-1]-2.*u[j])/dx/dx;
 
-//    Update next timestep for interior points  
+//    Update next timestep for interior points
       } else {
         ut[j] = u[j] + dt*(u[j-1]-2.*u[j]+u[j+1])/dx/dx;
       }
@@ -61,12 +65,17 @@ int main(){
 
 //    Output info
       myfile << std::setprecision(5)<< ut[j]<<", "<<ua[j]<< endl;
+      if (j!=0 && j!=nx-1) res_ftcs += (ut[j]-ua[j])*(ut[j]-ua[j]);
+
     }
 
 //  Update u to next time step
     u = ut;
-    
+
   }
+
+  cout << res_ftcs/counter/nx << endl;
+  cout << "2dt/dx^2: " << 2.*dt/(dx*dx)<< endl;
   myfile.close();
 // -----------CN--------------------
   MatDoub A(nx,nx);
@@ -94,9 +103,10 @@ int main(){
 //Do LUdcmp of A
   LUdcmp ALU(A);
 
+counter = 0;
 //Time loop
-  for (Int i=0;i<Nt;i++){
-
+  while (t<t_end){
+    counter++;
 //  Update time
     t = t+dt;
 
@@ -126,8 +136,12 @@ int main(){
 //  Output
     for (Int j=0;j<nx;j++){
       myfile << std::setprecision(5)<< u[j]<<", "<<ua[j]<<", "<<x[j]<< endl;
+      if (j!=0 && j!=nx-1) res_cn+= (u[j]-ua[j])*(u[j]-ua[j]);
     }
   }
+
+  cout << res_cn/counter/nx<< endl;
+  cout << counter << endl;
 
   myfile.close();
   return 0;
