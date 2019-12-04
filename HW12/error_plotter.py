@@ -1,6 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy as np
+import matplotlib
 from matplotlib.lines import Line2D
+from matplotlib.ticker import AutoMinorLocator
 
 
 plt.rcParams.update({'font.size': 22})
@@ -16,32 +18,11 @@ t_end = 1.
 n = int(t_end/dt)
 nxf = [10, 20, 80]
 
-dtf = [1e-1,1e-2, 1e-3]
-ftcs = [[3.17680264142e-05, 6.32190002819e-05,6.6178208276e-05],
-        [5.80308699103e-06, 2.28072088398e-06, 3.43149371069e-06],
-        # [0.000541309688957, 2.32316805015e-09, 2.19041674699e-07],
-        [0.251889616814, 0.0840887692146, 6.89042177148e-09]]
+n = [4,8,12,16,20,30,40]
 
-cnf = [[6.1517728491e-05, 6.6599378832e-05, 6.65179025045e-05],
-        [2.8141503822e-06,3.57383197946e-06,  3.57280360729e-06],
-        # [9.15383812848e-08, 2.62015052681e-07, 2.64271100485e-07],
-        [7.44443020801e-08, 1.67645224284e-08, 1.75290127582e-08]]
-
-for i in range(len(nxf)):
-    for j in range(len(dtf)):
-        ftcs[i][j] = np.sqrt(ftcs[i][j])
-        cnf[i][j] = np.sqrt(cnf[i][j])
-
-nx = [250, 500, 1000]
-dt = [0.1, 0.05, 0.025,0.0125, 0.0050625]
-cn = [[1.43199547414e-07,7.65537418218e-09,2.19833679799e-10,8.59403587016e-11,1.68393808397e-10],
-        [1.52707214609e-07,9.3951636833e-09, 4.7783334906e-10,1.37482530063e-11,7.12937447741e-12],
-        [1.55872331268e-07, 9.91847314621e-09, 5.80768656559e-10, 2.9626785174e-11, 2.94207867541e-13]]
-
-for i in range(len(nx)):
-    for j in range(len(dt)):
-        cn[i][j] = np.sqrt(cn[i][j])
-
+ps=[0.0248559669072,5.76778786747e-05,1.11772580711e-08,1.46707542945e-11,1.45854600688e-13,1.08375298231e-14, 1.00311371689e-14]
+ps2 =[0.0248559669072, 5.76778786745e-05, 1.11771262695e-08, 8.22254435542e-13, 4.90947084158e-16, 3.04698745629e-15, 2.67953428207e-15]
+cn=[0.0405955752319, 0.00723580158323,0.00295678133128,0.00160135186969,0.00100281719845, 0.000433401035878, 0.000240517930066]
 
 lw = 3
 ms = 8
@@ -55,35 +36,35 @@ custom_lines=[Line2D([0], [0], color=c[0], lw=lw, ls=ls[0]),
             Line2D([0], [0], color=c[2], lw=lw, ls=ls[0]),
             Line2D([0], [0], color=c[0], lw=lw, ls="-", marker='s', markersize=ms),
             Line2D([0], [0], color=c[0], lw=lw, marker='o',markersize=ms, fillstyle='none', ls=ls[1])]
-for i, n in enumerate(nxf):
-    ax.plot(dtf, ftcs[i], lw=lw, marker='s', markersize=ms,label='nx={}'.format(nxf[i]), color=c[i], ls=ls[0])
-    ax.plot(dtf, cnf[i], lw=lw, marker='o',markersize=ms, fillstyle='none', color=c[i], ls=ls[1])
-ax.set(xlabel='$dt$', ylabel='RMSE', yscale='log', xscale='log', ylim=[1e-5, 1e2])
-leg=["$N_x$=10", "$N_x$=20", "$N_x$=80", "FTCS", "C-N"]
-leg1=ax.legend(custom_lines[:3], leg[:3], ncol=3, frameon=False, loc='upper center')
-ax.legend(custom_lines[-2:], leg[-2:], ncol=2,loc='lower center',prop={'size': 16}, frameon=False, bbox_to_anchor= (0.5, 1.01))
-plt.gca().add_artist(leg1)
+# ax.plot(n, cn, lw=lw, marker='^', markersize=ms, color=c[1], ls=ls[1], label='Crank-Nicolson')
+
+ax.plot(n, ps2, lw=lw, marker='s', markersize=ms, color=c[0], ls=ls[0], label='Pseudospectral (dopr5)')
+# ax.plot(n, ps, lw=lw, marker='s', markersize=ms, color=c[3], ls=ls[3], label='Pseudospectral (dopr8)')
+
+ax.set(xlabel='Number of grid points, $N$', ylabel='RMSE', yscale='log', xscale='linear')
+# plt.xscale('log', basex=2)
+# ax.legend(frameon=False)
+# leg=["$N_x$=10", "$N_x$=20", "$N_x$=80", "FTCS", "C-N"]
+# leg1=ax.legend(custom_lines[:3], leg[:3], ncol=3, frameon=False, loc='upper center')
+# ax.legend(custom_lines[-2:], leg[-2:], ncol=2,loc='lower center',prop={'size': 16}, frameon=False, bbox_to_anchor= (0.5, 1.01))
+# plt.gca().add_artist(leg1)
+
+
+# plt.tick_params(axis='y', which='minor')
+
+locmaj = matplotlib.ticker.LogLocator(base=10,numticks=8)
+ax.yaxis.set_major_locator(locmaj)
+# locmin = matplotlib.ticker.LogLocator(base=10.0,subs=(0.25,0.5),numticks=20)
+# ax.yaxis.set_minor_locator(locmin)
+# ax.yaxis.set_minor_formatter(matplotlib.ticker.NullFormatter())
+# ax.xaxis.set_minor_locator(
+#     AutoMinorLocator())
+# ax.yaxis.set_minor_locator(
+#     AutoMinorLocator())
+ax.grid(which='both')
 
 plt.tight_layout()
 plt.savefig('figs/error.eps')
-
-fig, ax = plt.subplots(figsize=(8,6))
-
-custom_lines=[Line2D([0], [0], color=c[0], lw=lw, ls=ls[0]),
-            Line2D([0], [0], color=c[1], lw=lw, ls=ls[1]),
-            Line2D([0], [0], color=c[2], lw=lw, ls=ls[2]),
-            Line2D([0], [0], color=c[0], lw=lw, ls="-", marker='s', markersize=ms),
-            Line2D([0], [0], color=c[0], lw=lw, marker='o',markersize=ms, fillstyle='none', ls=ls[0])]
-for i, n in enumerate(nx):
-    ax.plot(dt, cn[i], lw=lw, marker='o', markersize=ms,fillstyle='none',label='nx={}'.format(nxf[i]), color=c[i], ls=ls[i])
-ax.set(xlabel='$dt$', ylabel='RMSE', yscale='log', xscale='log', ylim=[1e-7, 1e-2])
-leg=["$N_x$=250", "$N_x$=500", "$N_x$=1000", "C-N"]
-leg1=ax.legend(custom_lines[:3], leg[:3], ncol=3, frameon=False, loc='upper center')
-ax.legend(custom_lines[-1:], leg[-1:], ncol=2,loc='lower center',prop={'size': 16}, frameon=False, bbox_to_anchor= (0.5, 1.01))
-plt.gca().add_artist(leg1)
-
-plt.tight_layout()
-plt.savefig('figs/error2.eps')
 
 
 
